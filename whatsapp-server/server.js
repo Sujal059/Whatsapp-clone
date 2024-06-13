@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import app from "./app.js";
 import logger from "./config/logger.config.js";
+import mongoose from "mongoose";
 
 
 //config dotenv
@@ -8,7 +9,29 @@ dotenv.config();
 
 
 //env variables
+const MONGO_URL = process.env.MONGO_URL;
 const PORT = process.env.PORT || 9000;
+
+
+//mongodb connect
+mongoose.connect(MONGO_URL, {
+    useNewUrlParser: true,      //to accept all urls
+    useUnifiedTopology: true,
+}).then(()=>{
+    logger.info("DB connected");
+})
+
+//listen to error and exit
+mongoose.connection.on('error', (err)=>{
+    logger.error(`MOngoDB connection error: ${err.message}`);
+    process.exit(1);
+})
+
+//mongodb debug mode
+if(process.env.NODE_ENV!=="production"){
+    mongoose.set("debug", true);
+}
+
 
 
 //listen server
